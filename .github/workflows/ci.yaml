@@ -1,0 +1,22 @@
+name: "CI"
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch: 
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/flake-checker-action@v8
+      - uses: cachix/install-nix-action@V27
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN }}
+
+      - run: nix flake show .
+      - run: nix build .#devShells.aarch64-darwin.default
